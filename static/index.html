@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobHunter — wyszukiwarka ofert IT</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>🎯 JobHunter</h1>
+    <p class="sub">Wgraj CV → dopasuj oferty IT → aplikuj z pomocą AI</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="search">Wyszukiwarka</button>
+    <button class="tab" data-tab="tracker">Moje aplikacje</button>
+    <button class="tab" data-tab="recruiters">CRM Rekruterów</button>
+  </nav>
+
+  <main>
+    <!-- ═══ WYSZUKIWARKA ═══ -->
+    <section id="tab-search" class="tab-panel active">
+
+      <div class="panel">
+        <h2>1. Twoje CV</h2>
+        <div id="profile-box">
+          <div class="row-gap">
+            <input type="file" id="cv-file" accept=".pdf,.docx,.txt,.md" />
+            <button id="upload-btn">Wgraj CV</button>
+            <input type="text" id="url-input" placeholder="lub wklej URL oferty…" style="width:280px" />
+            <button id="url-btn">Analizuj URL</button>
+          </div>
+          <div id="profile-summary"></div>
+          <div id="cv-quality-box"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>2. Źródła i filtry</h2>
+        <div id="sources-box" class="checkbox-row"></div>
+        <div class="search-controls">
+          <input type="text" id="query" placeholder="Słowo kluczowe (np. Python, React) — opcjonalnie" />
+          <input type="text" id="location" placeholder="Lokalizacja (np. Warszawa)" />
+          <label><input type="checkbox" id="remote-only" /> tylko zdalne</label>
+          <label>Min. wynagrodzenie:
+            <input type="number" id="salary-min" min="0" step="1000" value="0" style="width:100px" /> PLN/mc
+          </label>
+          <label>Min. dopasowanie:
+            <input type="range" id="min-score" min="0" max="100" value="30" />
+            <span id="min-score-val">30%</span>
+          </label>
+          <button id="search-btn" disabled>Szukaj ofert</button>
+        </div>
+        <div id="search-status"></div>
+      </div>
+
+      <div class="panel" id="gaps-panel" style="display:none">
+        <h2>📚 Czego się douczyć</h2>
+        <p class="muted">Najczęściej brakujące technologie w dopasowanych ofertach.</p>
+        <div id="gaps" class="chips"></div>
+      </div>
+
+      <div class="panel">
+        <h2>3. Wyniki <span id="results-count"></span></h2>
+        <div id="results"></div>
+      </div>
+    </section>
+
+    <!-- ═══ TRACKER ═══ -->
+    <section id="tab-tracker" class="tab-panel">
+      <div class="panel">
+        <h2>Moje aplikacje
+          <a href="/api/tracker/export.csv" class="btn-link" style="font-size:14px;margin-left:12px">⬇ Eksport CSV</a>
+        </h2>
+        <div id="tracker-list"></div>
+      </div>
+    </section>
+
+    <!-- ═══ CRM REKRUTERÓW ═══ -->
+    <section id="tab-recruiters" class="tab-panel">
+      <div class="panel">
+        <h2>Dodaj rekrutera</h2>
+        <div class="rec-form">
+          <input id="rec-name"     type="text" placeholder="Imię i nazwisko *" />
+          <input id="rec-email"    type="text" placeholder="E-mail" />
+          <input id="rec-phone"    type="text" placeholder="Telefon" />
+          <input id="rec-company"  type="text" placeholder="Firma" />
+          <input id="rec-linkedin" type="text" placeholder="LinkedIn URL" />
+          <input id="rec-followup" type="date" title="Follow-up: kiedy się odezwać" />
+          <textarea id="rec-notes" rows="2" placeholder="Notatki"></textarea>
+          <button id="rec-save-btn">Zapisz rekrutera</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Lista rekruterów</h2>
+        <div id="recruiter-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══ MODAL: aplikowanie ═══ -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">×</button>
+      <h3 id="modal-title">Aplikuj na ofertę</h3>
+      <div id="modal-meta"></div>
+
+      <div class="modal-tabs">
+        <button class="mtab active" data-mtab="letter">✍️ List motywacyjny</button>
+        <button class="mtab" data-mtab="suggest">💡 Sugestie CV</button>
+        <button class="mtab" data-mtab="keywords">🔑 Słowa kluczowe</button>
+      </div>
+
+      <!-- List -->
+      <div class="mtab-panel active" id="mpanel-letter">
+        <label class="ai-toggle">
+          <input type="checkbox" id="use-ai" checked /> Użyj AI (Claude)
+        </label>
+        <button id="gen-letter-btn">Wygeneruj list</button>
+        <textarea id="letter-text" rows="12" placeholder="Tutaj pojawi się list motywacyjny..."></textarea>
+        <div class="modal-actions">
+          <button id="copy-letter">Kopiuj</button>
+          <button id="save-app">Zapisz aplikację</button>
+          <a id="open-offer" href="#" target="_blank" class="btn-link">Otwórz ofertę ↗</a>
+        </div>
+      </div>
+
+      <!-- Sugestie CV -->
+      <div class="mtab-panel" id="mpanel-suggest">
+        <button id="gen-suggest-btn">Generuj sugestie</button>
+        <div id="suggestions-list"></div>
+      </div>
+
+      <!-- Słowa kluczowe -->
+      <div class="mtab-panel" id="mpanel-keywords">
+        <div id="kw-content"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
