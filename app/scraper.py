@@ -11,7 +11,7 @@ import re
 from urllib.parse import urlparse
 
 from .sources.base import client, make_offer
-from .sources import justjoin, nofluffjobs
+from .sources import justjoin
 
 
 def _validate_url(url: str) -> None:

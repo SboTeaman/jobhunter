@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import json as _json
 import logging
+from typing import TYPE_CHECKING
 
 from . import config
 from .cv_parser import SENIORITY_LABELS
 
-_anthropic_client: "AsyncAnthropic | None" = None
+if TYPE_CHECKING:
+    from anthropic import AsyncAnthropic
+
+_anthropic_client: AsyncAnthropic | None = None
 
 
 def _get_anthropic_client():

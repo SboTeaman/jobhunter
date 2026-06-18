@@ -7,7 +7,6 @@ certyfikaty, metodyki) i sprawdza pokrycie w CV — podobnie jak Jobscan.
 from __future__ import annotations
 
 import re
-from collections import Counter
 
 # Stopwords PL + EN (najczęstsze słowa bez wartości informacyjnej).
 _STOP = {
